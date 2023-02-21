@@ -10,7 +10,7 @@ import { JsonRenderer } from './JsonRenderer';
 import { focusCameraOn } from '../../../../Itowns/Component/Component';
 import './SparqlQueryWindow.css';
 import { loadTextFile } from '../../../../FileUtil';
-import { WorkspaceGraph } from '../Model/WorkspaceGraph';
+import { Workspace } from '../Model/Workspace';
 
 /**
  * The SPARQL query window class which provides the user interface for querying
@@ -96,7 +96,7 @@ export class SparqlQueryWindow extends Window {
      *
      * @type {Table}
      */
-    this.workspace = new WorkspaceGraph(this, configSparqlWidget);
+    this.workspace = new Workspace(this, configSparqlWidget);
 
     /**
      * Store the queries of the SparqlQueryWindow from the config.

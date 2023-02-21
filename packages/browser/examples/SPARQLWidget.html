@@ -95,7 +95,7 @@
           app.getFrame3DPlanar().getLayerManager()
         );
         app.addWidgetView('layerChoice', layerChoice);
-        
+
         // //// CITY OBJECTS PROVIDER
         const cityObjectProvider = new udvizBrowser.Widget.CityObjectProvider(
           app.getFrame3DPlanar().getLayerManager(),
@@ -122,6 +122,7 @@
             configs['sparql_server']
           ),
           cityObjectProvider,
+          temporalModule.provider,
           app.getFrame3DPlanar().getLayerManager(),
           configs['sparql_widget']
         );

@@ -3,7 +3,7 @@ import { tokenizeURI } from './URI';
 import { SparqlQueryWindow } from '../View/SparqlQueryWindow';
 import { Graph } from './Graph';
 
-export class WorkspaceGraph extends Graph {
+export class Workspace extends Graph {
   
   /**
    * Create a new D3 workspace graph from an RDF JSON object.
