@@ -5,10 +5,12 @@ import { Table } from '../Model/Table';
 import * as URI from '../Model/URI';
 import { LayerManager } from '../../../../Itowns/LayerManager/LayerManager';
 import { CityObjectProvider } from '../../../CityObjects/ViewModel/CityObjectProvider';
+import { TemporalProvider } from '../../../Temporal/ViewModel/TemporalProvider';
 import { JsonRenderer } from './JsonRenderer';
 import { focusCameraOn } from '../../../../Itowns/Component/Component';
 import './SparqlQueryWindow.css';
 import { loadTextFile } from '../../../../FileUtil';
+import { WorkspaceGraph } from '../Model/WorkspaceGraph';
 
 /**
  * The SPARQL query window class which provides the user interface for querying
@@ -20,6 +22,7 @@ export class SparqlQueryWindow extends Window {
    *
    * @param {SparqlEndpointResponseProvider} sparqlProvider The SPARQL Endpoint Response Provider
    * @param {CityObjectProvider} cityObjectProvider The City Object Provider
+   * @param {TemporalProvider} temporalProvider The Temporal Provider
    * @param {LayerManager} layerManager The UD-Viz LayerManager.
    * @param {object} configSparqlWidget The sparqlModule view configuration.
    * @param {object} configSparqlWidget.queries Query configurations
@@ -33,6 +36,7 @@ export class SparqlQueryWindow extends Window {
   constructor(
     sparqlProvider,
     cityObjectProvider,
+    temporalProvider,
     layerManager,
     configSparqlWidget
   ) {
@@ -51,6 +55,13 @@ export class SparqlQueryWindow extends Window {
      * @type {CityObjectProvider}
      */
     this.cityObjectProvider = cityObjectProvider;
+
+    /**
+     * The Temporal Provider
+     *
+     * @type {TemporalProvider}
+     */
+    this.temporalProvider = temporalProvider;
 
     /**
      *A reference to the JsonRenderer class
@@ -79,6 +90,13 @@ export class SparqlQueryWindow extends Window {
      * @type {Table}
      */
     this.table = new Table(this);
+
+    /**
+     * Contains the D3 table to display RDF data.
+     *
+     * @type {Table}
+     */
+    this.workspace = new WorkspaceGraph(this, configSparqlWidget);
 
     /**
      * Store the queries of the SparqlQueryWindow from the config.
@@ -179,6 +197,13 @@ export class SparqlQueryWindow extends Window {
         URI.tokenizeURI(cell_text).id
       )
     );
+        
+    this.addEventListener(WorkspaceGraph.EVENT_NODE_CLICKED, (newDate) => {
+      let currentTime = URI.tokenizeURI(newDate).id.split('_')[1];
+      this.temporalProvider.currentTime = Number(currentTime);
+      this.temporalProvider.changeVisibleTilesStates();
+    } 
+  );
   }
 
   /**
@@ -207,6 +232,10 @@ export class SparqlQueryWindow extends Window {
         );
         this.dataView.style['height'] = '500px';
         this.dataView.style['overflow'] = 'scroll';
+        break;
+      case 'workspace':
+        this.workspace.update(this.workspace.formatResponseDataAsGraph(response));
+        this.dataView.append(this.workspace.canvas);
         break;
       default:
         console.error('This result format is not supported: ' + view_type);
