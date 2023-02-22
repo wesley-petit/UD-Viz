@@ -109,6 +109,9 @@ export class SparqlQueryWindow extends Window {
     this.registerEvent(Graph.EVENT_NODE_MOUSEOVER);
     this.registerEvent(Graph.EVENT_NODE_MOUSEOUT);
     this.registerEvent(Table.EVENT_CELL_CLICKED);
+    this.registerEvent(Workspace.EVENT_WORKSPACE_NODE_CLICKED);
+    this.registerEvent(Workspace.EVENT_WORKSPACE_NODE_MOUSEOVER);
+    this.registerEvent(Workspace.EVENT_WORKSPACE_NODE_MOUSEOUT);
   }
 
   /**
@@ -198,12 +201,15 @@ export class SparqlQueryWindow extends Window {
       )
     );
         
-    this.addEventListener(WorkspaceGraph.EVENT_NODE_CLICKED, (newDate) => {
-      let currentTime = URI.tokenizeURI(newDate).id.split('_')[1];
-      this.temporalProvider.currentTime = Number(currentTime);
-      this.temporalProvider.changeVisibleTilesStates();
-    } 
-  );
+    this.addEventListener(Workspace.EVENT_WORKSPACE_NODE_CLICKED, (datum) => {
+      console.log(datum);
+      console.log(this.workspace.getNode(datum));
+      console.log(this.workspace.getLinks(datum));
+      
+      // let currentTime = URI.tokenizeURI(newDate).id.split('_')[1];
+      // this.temporalProvider.currentTime = Number(currentTime);
+      // this.temporalProvider.changeVisibleTilesStates();
+    });
   }
 
   /**
@@ -234,7 +240,7 @@ export class SparqlQueryWindow extends Window {
         this.dataView.style['overflow'] = 'scroll';
         break;
       case 'workspace':
-        this.workspace.update(this.workspace.formatResponseDataAsGraph(response));
+        this.workspace.update(response);
         this.dataView.append(this.workspace.canvas);
         break;
       default:
