@@ -2,7 +2,7 @@ import { Window } from '../../../Component/GUI/js/Window';
 import { SparqlEndpointResponseProvider } from '../Service/SparqlEndpointResponseProvider';
 import { Graph } from '../Model/Graph';
 import { Table } from '../Model/Table';
-import * as URI from '../Model/URI';
+import { tokenizeURI } from '../Model/URI';
 import { LayerManager } from '../../../../Itowns/LayerManager/LayerManager';
 import { CityObjectProvider } from '../../../CityObjects/ViewModel/CityObjectProvider';
 import { TemporalProvider } from '../../../Temporal/ViewModel/TemporalProvider';
@@ -22,7 +22,7 @@ export class SparqlQueryWindow extends Window {
    *
    * @param {SparqlEndpointResponseProvider} sparqlProvider The SPARQL Endpoint Response Provider
    * @param {CityObjectProvider} cityObjectProvider The City Object Provider
-   * @param {TemporalProvider} temporalProvider The Temporal Provider
+   * @param {Array<TemporalProvider>} temporalProviders The Temporal Providers associated with each potential scenario
    * @param {LayerManager} layerManager The UD-Viz LayerManager.
    * @param {object} configSparqlWidget The sparqlModule view configuration.
    * @param {object} configSparqlWidget.queries Query configurations
@@ -36,7 +36,7 @@ export class SparqlQueryWindow extends Window {
   constructor(
     sparqlProvider,
     cityObjectProvider,
-    temporalProvider,
+    temporalProviders,
     layerManager,
     configSparqlWidget
   ) {
@@ -57,11 +57,11 @@ export class SparqlQueryWindow extends Window {
     this.cityObjectProvider = cityObjectProvider;
 
     /**
-     * The Temporal Provider
+     * The Temporal Providers associated with each potential scenario
+     * @type {Array<TemporalProvider>} 
      *
-     * @type {TemporalProvider}
      */
-    this.temporalProvider = temporalProvider;
+    this.temporalProviders = temporalProviders;
 
     /**
      *A reference to the JsonRenderer class
@@ -92,7 +92,7 @@ export class SparqlQueryWindow extends Window {
     this.table = new Table(this);
 
     /**
-     * Contains the D3 table to display RDF data.
+     * Contains the D3 table to display Workspace RDF data.
      *
      * @type {Table}
      */
@@ -164,11 +164,11 @@ export class SparqlQueryWindow extends Window {
     this.addEventListener(Graph.EVENT_NODE_CLICKED, (node_text) => {
       this.cityObjectProvider.selectCityObjectByBatchTable(
         'gml_id',
-        URI.tokenizeURI(node_text).id
+        tokenizeURI(node_text).localname
       );
       const cityObject = this.layerManager.pickCityObjectByBatchTable(
         'gml_id',
-        URI.tokenizeURI(node_text).id
+        tokenizeURI(node_text).localname
       );
       if (cityObject) {
         focusCameraOn(
@@ -186,7 +186,7 @@ export class SparqlQueryWindow extends Window {
     this.addEventListener(Graph.EVENT_NODE_MOUSEOVER, (node_text) =>
       this.cityObjectProvider.selectCityObjectByBatchTable(
         'gml_id',
-        URI.tokenizeURI(node_text).id
+        tokenizeURI(node_text).localname
       )
     );
 
@@ -197,18 +197,57 @@ export class SparqlQueryWindow extends Window {
     this.addEventListener(Table.EVENT_CELL_CLICKED, (cell_text) =>
       this.cityObjectProvider.selectCityObjectByBatchTable(
         'gml_id',
-        URI.tokenizeURI(cell_text).id
+        tokenizeURI(cell_text).localname
       )
     );
         
-    this.addEventListener(Workspace.EVENT_WORKSPACE_NODE_CLICKED, (datum) => {
-      console.log(datum);
-      console.log(this.workspace.getNode(datum));
-      console.log(this.workspace.getLinks(datum));
+    this.addEventListener(Workspace.EVENT_WORKSPACE_NODE_CLICKED, (index) => {
+      const node = this.workspace.getNodeByIndex(index);
+      const links = this.workspace.getLinksByIndex(index);
+      let scenarioLayer = undefined;
+      let scenarioName = undefined
       
-      // let currentTime = URI.tokenizeURI(newDate).id.split('_')[1];
-      // this.temporalProvider.currentTime = Number(currentTime);
-      // this.temporalProvider.changeVisibleTilesStates();
+      switch (tokenizeURI(node.type).localname) { // behavior changes based on the node type
+        case 'Version':
+          scenarioName = tokenizeURI(this.workspace.getVersionScenarioByUri(node.id).id).localname;
+          scenarioLayer = this.layerManager.getGeometryLayersWithoutPlanar().find( layer => {
+            return layer.name == scenarioName;
+          });
+          break;
+        case 'VersionTransition':
+          scenarioName = tokenizeURI(this.workspace.getVersionTransitionScenarioByUri(node.id).id).localname;
+          scenarioLayer = this.layerManager.getGeometryLayersWithoutPlanar().find( layer => {
+            return layer.name == scenarioName;
+          });
+          break;
+        default:
+          throw `Workspace node click event error; Unknown node type: ${tokenizeURI(node.type).localname}`
+      }
+      
+      console.log(scenarioLayer);
+      console.log(scenarioName);
+      const scenarioTemporalProvider = this.temporalProviders.find( provider => {
+        return provider.tilesManager.layer == scenarioLayer;
+      });
+      console.log(scenarioTemporalProvider);
+      
+      const validFrom = links.find( link => {
+        return tokenizeURI(link.label).localname == 'AbstractFeatureWithLifespan.validFrom';
+      });
+      const validTo = links.find( link => {
+        return tokenizeURI(link.label).localname == 'AbstractFeatureWithLifespan.validTo';
+      });
+
+      if (!validFrom || !validTo ) {
+        console.warn(`could not find bitemporal timestamps for ${node.id}`)
+        return;
+      }
+      const timestamp1 = new Date(String(validFrom)).getFullYear();
+      const timestamp2 = new Date(String(validTo)).getFullYear();
+
+      const timestampAverage = (timestamp2 - timestamp1) / 2 + timestamp1;
+      scenarioTemporalProvider.currentTime = Number(timestampAverage);
+      scenarioTemporalProvider.changeVisibleTilesStates();//this still isnt working
     });
   }
 
