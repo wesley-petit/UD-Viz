@@ -103,6 +103,19 @@ export class TemporalProvider {
         materialProps: { opacity: 0, color: 0xffffff, alphaTest: 0.3 },
       })
     ); // Hidden
+    this.tilesManager.registerStyle(
+      'union',
+      new CityObjectStyle({
+        materialProps: { opacity: 0.6, color: 'blue' },
+      })
+    ); // blue
+
+    this.tilesManager.registerStyle(
+      'division',
+      new CityObjectStyle({
+        materialProps: { opacity: 0.6, color: 'orange' },
+      })
+    ); // orange
   }
 
   /**
