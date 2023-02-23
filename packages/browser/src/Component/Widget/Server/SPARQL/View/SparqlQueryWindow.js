@@ -2,7 +2,7 @@ import { Window } from '../../../Component/GUI/js/Window';
 import { SparqlEndpointResponseProvider } from '../Service/SparqlEndpointResponseProvider';
 import { Graph } from '../Model/Graph';
 import { Table } from '../Model/Table';
-import { tokenizeURI } from '../Model/URI';
+import { getUriLocalname } from '../Model/URI';
 import { LayerManager } from '../../../../Itowns/LayerManager/LayerManager';
 import { CityObjectProvider } from '../../../CityObjects/ViewModel/CityObjectProvider';
 import { TemporalProvider } from '../../../Temporal/ViewModel/TemporalProvider';
@@ -164,11 +164,11 @@ export class SparqlQueryWindow extends Window {
     this.addEventListener(Graph.EVENT_NODE_CLICKED, (node_text) => {
       this.cityObjectProvider.selectCityObjectByBatchTable(
         'gml_id',
-        tokenizeURI(node_text).localname
+        getUriLocalname(node_text)
       );
       const cityObject = this.layerManager.pickCityObjectByBatchTable(
         'gml_id',
-        tokenizeURI(node_text).localname
+        getUriLocalname(node_text)
       );
       if (cityObject) {
         focusCameraOn(
@@ -186,7 +186,7 @@ export class SparqlQueryWindow extends Window {
     this.addEventListener(Graph.EVENT_NODE_MOUSEOVER, (node_text) =>
       this.cityObjectProvider.selectCityObjectByBatchTable(
         'gml_id',
-        tokenizeURI(node_text).localname
+        getUriLocalname(node_text)
       )
     );
 
@@ -197,7 +197,7 @@ export class SparqlQueryWindow extends Window {
     this.addEventListener(Table.EVENT_CELL_CLICKED, (cell_text) =>
       this.cityObjectProvider.selectCityObjectByBatchTable(
         'gml_id',
-        tokenizeURI(cell_text).localname
+        getUriLocalname(cell_text)
       )
     );
         
@@ -206,48 +206,50 @@ export class SparqlQueryWindow extends Window {
       const links = this.workspace.getLinksByIndex(index);
       let scenarioLayer = undefined;
       let scenarioName = undefined
-      
-      switch (tokenizeURI(node.type).localname) { // behavior changes based on the node type
+      console.debug(`workspace node clicked with localname ${getUriLocalname(node.id)} and type ${getUriLocalname(node.type)}`)
+
+      switch (getUriLocalname(node.type)) { // behavior changes based on the node type
         case 'Version':
-          scenarioName = tokenizeURI(this.workspace.getVersionScenarioByUri(node.id).id).localname;
+          scenarioName = getUriLocalname(this.workspace.getVersionScenarioByUri(node.id).id);
           scenarioLayer = this.layerManager.getGeometryLayersWithoutPlanar().find( layer => {
             return layer.name == scenarioName;
           });
           break;
         case 'VersionTransition':
-          scenarioName = tokenizeURI(this.workspace.getVersionTransitionScenarioByUri(node.id).id).localname;
+          scenarioName = getUriLocalname(this.workspace.getVersionTransitionScenarioByUri(node.id).id);
           scenarioLayer = this.layerManager.getGeometryLayersWithoutPlanar().find( layer => {
             return layer.name == scenarioName;
           });
           break;
         default:
-          throw `Workspace node click event error; Unknown node type: ${tokenizeURI(node.type).localname}`
+          throw `Workspace node click event error; Unknown node type: ${getUriLocalname(node.type)}`
       }
       
-      console.log(scenarioLayer);
-      console.log(scenarioName);
       const scenarioTemporalProvider = this.temporalProviders.find( provider => {
         return provider.tilesManager.layer == scenarioLayer;
       });
-      console.log(scenarioTemporalProvider);
+      console.debug(`found scenarioLayer with name ${scenarioName} and a matching temporalProvider`);
+      console.debug(scenarioLayer);
+      console.debug(scenarioTemporalProvider);
       
       const validFrom = links.find( link => {
-        return tokenizeURI(link.label).localname == 'AbstractFeatureWithLifespan.validFrom';
+        return getUriLocalname(link.label) == 'AbstractFeatureWithLifespan.validFrom';
       });
       const validTo = links.find( link => {
-        return tokenizeURI(link.label).localname == 'AbstractFeatureWithLifespan.validTo';
+        return getUriLocalname(link.label) == 'AbstractFeatureWithLifespan.validTo';
       });
 
       if (!validFrom || !validTo ) {
         console.warn(`could not find bitemporal timestamps for ${node.id}`)
         return;
       }
-      const timestamp1 = new Date(String(validFrom)).getFullYear();
-      const timestamp2 = new Date(String(validTo)).getFullYear();
-
+      const timestamp1 = new Date(String(validFrom.target)).getFullYear();
+      const timestamp2 = new Date(String(validTo.target)).getFullYear();
       const timestampAverage = (timestamp2 - timestamp1) / 2 + timestamp1;
-      scenarioTemporalProvider.currentTime = Number(timestampAverage);
-      scenarioTemporalProvider.changeVisibleTilesStates();//this still isnt working
+      console.debug(`bitemporal timestamps found: ${validFrom.target} and ${validTo.target}, average year is ${timestampAverage}`);
+
+      scenarioTemporalProvider.currentTime = parseInt(timestampAverage);
+      scenarioTemporalProvider.changeVisibleTilesStates();
     });
   }
 
