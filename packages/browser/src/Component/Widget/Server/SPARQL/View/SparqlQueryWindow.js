@@ -202,52 +202,23 @@ export class SparqlQueryWindow extends Window {
     );
         
     this.addEventListener(Workspace.EVENT_WORKSPACE_NODE_CLICKED, (index) => {
-      const node = this.workspace.getNodeByIndex(index);
-      const links = this.workspace.getLinksByIndex(index);
-      let scenarioLayer = undefined;
-      let scenarioName = undefined
-      console.debug(`workspace node clicked with localname ${getUriLocalname(node.id)} and type ${getUriLocalname(node.type)}`)
+      /* find the first scenario that contains the clicked node,
+       * find the temporal the geometry layer with the same name, and
+       * set the current time to the averaged timestamps linked to the node
+       */ 
+      console.debug(`workspace node clicked with localname ${getUriLocalname(this.workspace.getNodeByIndex(index).id)} and type ${getUriLocalname(this.workspace.getNodeByIndex(index).type)}`)
 
-      switch (getUriLocalname(node.type)) { // behavior changes based on the node type
-        case 'Version':
-          scenarioName = getUriLocalname(this.workspace.getVersionScenarioByUri(node.id).id);
-          scenarioLayer = this.layerManager.getGeometryLayersWithoutPlanar().find( layer => {
-            return layer.name == scenarioName;
-          });
-          break;
-        case 'VersionTransition':
-          scenarioName = getUriLocalname(this.workspace.getVersionTransitionScenarioByUri(node.id).id);
-          scenarioLayer = this.layerManager.getGeometryLayersWithoutPlanar().find( layer => {
-            return layer.name == scenarioName;
-          });
-          break;
-        default:
-          throw `Workspace node click event error; Unknown node type: ${getUriLocalname(node.type)}`
-      }
-      
+      const scenarioLayer = this.workspace.getScenarioLayerByIndex(index, this.layerManager);
       const scenarioTemporalProvider = this.temporalProviders.find( provider => {
         return provider.tilesManager.layer == scenarioLayer;
       });
-      console.debug(`found scenarioLayer with name ${scenarioName} and a matching temporalProvider`);
+      console.debug(`found a scenarioLayer and a matching temporalProvider`);
       console.debug(scenarioLayer);
       console.debug(scenarioTemporalProvider);
       
-      const validFrom = links.find( link => {
-        return getUriLocalname(link.label) == 'AbstractFeatureWithLifespan.validFrom';
-      });
-      const validTo = links.find( link => {
-        return getUriLocalname(link.label) == 'AbstractFeatureWithLifespan.validTo';
-      });
-
-      if (!validFrom || !validTo ) {
-        console.warn(`could not find bitemporal timestamps for ${node.id}`)
-        return;
-      }
-      const timestamp1 = new Date(String(validFrom.target)).getFullYear();
-      const timestamp2 = new Date(String(validTo.target)).getFullYear();
-      const timestampAverage = (timestamp2 - timestamp1) / 2 + timestamp1;
-      console.debug(`bitemporal timestamps found: ${validFrom.target} and ${validTo.target}, average year is ${timestampAverage}`);
-
+      const timestamps = this.workspace.getBitemporalTimestampsByIndex(index);
+      const timestampAverage = (timestamps.validTo - timestamps.validFrom) / 2 + timestamps.validFrom;
+      console.debug(`timestamp average: ${timestampAverage}`);
       scenarioTemporalProvider.currentTime = parseInt(timestampAverage);
       scenarioTemporalProvider.changeVisibleTilesStates();
     });
