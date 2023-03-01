@@ -209,35 +209,12 @@ export class LayerManager {
    * @returns {Array<import("../3DTiles/Model/CityObject").CityObject>} An array of picked CityObject
    */
   pickCityObjectsByBatchTable(batchTableKey, batchTableValue) {
-    const cityObjects = [];
+    let cityObjects = [];
     for (const tilesManager of this.tilesManagers) {
       if (!tilesManager.tiles) {
         continue;
       }
-      for (const tile of tilesManager.tiles) {
-        if (
-          !tile ||
-          !tile.cityObjects ||
-          !tile.batchTable ||
-          !tile.batchTable.content[batchTableKey] ||
-          !tile.batchTable.content[batchTableKey].includes(batchTableValue)
-        ) {
-          continue;
-        }
-        cityObjects.push(
-          tile.cityObjects[
-            tile.batchTable.content[batchTableKey].indexOf(batchTableValue)
-          ]
-        );
-      }
-    }
-    if (cityObjects.length == 0) {
-      console.warn(
-        'WARNING: cityObjects not found with key, value pair: ' +
-          batchTableKey +
-          ', ' +
-          batchTableValue
-      );
+      cityObjects = cityObjects.concat(tilesManager.pickCityObjectsByBatchTable(batchTableKey, batchTableValue));
     }
     return cityObjects;
   }

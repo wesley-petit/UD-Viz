@@ -515,6 +515,45 @@ export class TilesManager extends EventSender {
     return this.upToDateTileIds[tile.tileId] !== uuid;
   }
 
+   /**
+   * Returns the city objects which corresponds to a key,value pair in tilesManager
+   * batch table.
+   *
+   * @param {string} batchTableKey The batch table key to search by.
+   * @param {string} batchTableValue The batch table value to search for.
+   * @returns {Array<import("../3DTiles/Model/CityObject").CityObject>} An array of picked CityObject
+   */
+  pickCityObjectsByBatchTable(batchTableKey, batchTableValue) {
+    const cityObjects = [];
+
+    for (const tile of this.tiles) {
+      if (
+        !tile ||
+        !tile.cityObjects ||
+        !tile.batchTable ||
+        !tile.batchTable.content[batchTableKey] ||
+        !tile.batchTable.content[batchTableKey].includes(batchTableValue)
+      ) {
+        continue;
+      }
+      cityObjects.push(
+        tile.cityObjects[
+          tile.batchTable.content[batchTableKey].indexOf(batchTableValue)
+        ]
+      );
+    }
+
+    if (cityObjects.length == 0) {
+      console.warn(
+        'WARNING: cityObjects not found with key, value pair: ' +
+          batchTableKey +
+          ', ' +
+          batchTableValue
+      );
+    }
+    return cityObjects;
+  }
+
   // //////////
   // /// EVENTS
   static get EVENT_TILE_LOADED() {
