@@ -22,6 +22,8 @@ export { SparqlWidgetView } from './SPARQL/View/SparqlWidgetView';
 
 export { SparqlEndpointResponseProvider } from './SPARQL/Service/SparqlEndpointResponseProvider';
 
+export { SparqlWorkspaceWidgetView } from './Workspace/View/SparqlWorkspaceWidgetView';
+
 export { GuidedTourController } from './GuidedTour/GuidedTourController';
 
 export { LinkModule } from './Links/LinkModule';
