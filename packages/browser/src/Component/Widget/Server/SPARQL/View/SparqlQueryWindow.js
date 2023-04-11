@@ -5,7 +5,6 @@ import { Table } from '../Model/Table';
 import { getUriLocalname } from '../Model/URI';
 import { LayerManager } from '../../../../Itowns/LayerManager/LayerManager';
 import { CityObjectProvider } from '../../../CityObjects/ViewModel/CityObjectProvider';
-import { TemporalProvider } from '../../../Temporal/ViewModel/TemporalProvider';
 import { JsonRenderer } from './JsonRenderer';
 import { focusCameraOn } from '../../../../Itowns/Component/Component';
 import './SparqlQueryWindow.css';
@@ -21,7 +20,6 @@ export class SparqlQueryWindow extends Window {
    *
    * @param {SparqlEndpointResponseProvider} sparqlProvider The SPARQL Endpoint Response Provider
    * @param {CityObjectProvider} cityObjectProvider The City Object Provider
-   * @param {Array<TemporalProvider>} temporalProviders The Temporal Providers associated with each potential scenario
    * @param {LayerManager} layerManager The UD-Viz LayerManager.
    * @param {object} configSparqlWidget The sparqlModule view configuration.
    * @param {object} configSparqlWidget.queries Query configurations
@@ -35,7 +33,6 @@ export class SparqlQueryWindow extends Window {
   constructor(
     sparqlProvider,
     cityObjectProvider,
-    temporalProviders,
     layerManager,
     configSparqlWidget
   ) {
@@ -54,13 +51,6 @@ export class SparqlQueryWindow extends Window {
      * @type {CityObjectProvider}
      */
     this.cityObjectProvider = cityObjectProvider;
-
-    /**
-     * The Temporal Providers associated with each potential scenario
-     *
-     * @type {Array<TemporalProvider>}
-     */
-    this.temporalProviders = temporalProviders;
 
     /**
      *A reference to the JsonRenderer class
@@ -152,7 +142,7 @@ export class SparqlQueryWindow extends Window {
     this.resetButton.onclick = () => {
       this.d3Graph.clearCanvas();
       this.d3Graph.data.clear();
-    }
+    };
 
     this.sparqlProvider.addEventListener(
       SparqlEndpointResponseProvider.EVENT_ENDPOINT_RESPONSE_UPDATED,
