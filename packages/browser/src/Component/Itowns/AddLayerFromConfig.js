@@ -88,7 +88,7 @@ function setup3DTilesLayer(layer, layerManager, itownsView) {
     $3DTilesManager.color = color;
   }
 
-  if (layer['opacity']){
+  if (layer['opacity']) {
     const opacity = parseFloat(layer['opacity']);
     $3DTilesManager.opacity = opacity;
   } else {

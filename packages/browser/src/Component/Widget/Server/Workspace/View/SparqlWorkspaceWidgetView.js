@@ -1,41 +1,41 @@
-import { WidgetView } from '../../../Component/WidgetView/WidgetView';
-import { SparqlEndpointResponseProvider } from '../Service/SparqlEndpointResponseProvider';
+import { SparqlEndpointResponseProvider, SparqlWidgetView } from '../../Server';
 import { CityObjectProvider } from '../../../CityObjects/ViewModel/CityObjectProvider';
-import { SparqlQueryWindow } from './SparqlQueryWindow';
+import { SparqlWorkspaceQueryWindow } from './SparqlWorkspaceQueryWindow';
 import { LayerManager } from '../../../../Itowns/LayerManager/LayerManager';
 
 /**
  * The SPARQL WidgetView class which manages the SPARQL query window.
  */
-export class SparqlWidgetView extends WidgetView {
+export class SparqlWorkspaceWidgetView extends SparqlWidgetView {
   /**
    * Creates a new SparqlWidgetView.
    *
    * @param {SparqlEndpointResponseProvider} sparqlProvider The SPARQL Endpoint Response Provider
    * @param {CityObjectProvider} cityObjectProvider The City Object Provider
-   * @param {Array<TemporalProvider>} temporalProviders The Temporal Providers associated with each potential scenario
    * @param {LayerManager} layerManager The UD-Viz LayerManager.
    * @param {object} configSparqlWidget The sparqlModule view configuration.
+   * @param {Array<TemporalProvider>} temporalProviders The Temporal Providers associated with each potential scenario
    */
   constructor(
     sparqlProvider,
     cityObjectProvider,
     layerManager,
-    configSparqlWidget
+    configSparqlWidget,
+    temporalProviders
   ) {
-    super();
-
+    super(sparqlProvider, cityObjectProvider, layerManager, configSparqlWidget);
     /**
-     * Contains a SparqlQueryWindow for capturing user input and displaying
+     * Contains a SparqlWorkspaceQueryWindow for capturing user input and displaying
      * query results.
      *
-     * @type {SparqlQueryWindow}
+     * @type {SparqlWorkspaceQueryWindow}
      */
-    this.window = new SparqlQueryWindow(
+    this.window = new SparqlWorkspaceQueryWindow(
       sparqlProvider,
       cityObjectProvider,
       layerManager,
-      configSparqlWidget
+      configSparqlWidget,
+      temporalProviders
     );
   }
 
