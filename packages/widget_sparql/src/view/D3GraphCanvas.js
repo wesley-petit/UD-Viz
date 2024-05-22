@@ -325,36 +325,36 @@ export class D3GraphCanvas extends THREE.EventDispatcher {
       .attr(
         'transform',
         'translate(' +
-        event.transform.x +
-        ',' +
-        event.transform.y +
-        ') scale(' +
-        event.transform.k +
-        ')'
+          event.transform.x +
+          ',' +
+          event.transform.y +
+          ') scale(' +
+          event.transform.k +
+          ')'
       );
     d3.selectAll(`#${this.id} text.node_label`)
       .style('font-size', this.fontSize / event.transform.k + 'px')
       .attr(
         'transform',
         'translate(' +
-        event.transform.x +
-        ',' +
-        event.transform.y +
-        ') scale(' +
-        event.transform.k +
-        ')'
+          event.transform.x +
+          ',' +
+          event.transform.y +
+          ') scale(' +
+          event.transform.k +
+          ')'
       );
     d3.selectAll(`#${this.id} text.link_label`)
       .style('font-size', this.fontSize / event.transform.k + 'px')
       .attr(
         'transform',
         'translate(' +
-        event.transform.x +
-        ',' +
-        event.transform.y +
-        ') scale(' +
-        event.transform.k +
-        ')'
+          event.transform.x +
+          ',' +
+          event.transform.y +
+          ') scale(' +
+          event.transform.k +
+          ')'
       );
   }
 
