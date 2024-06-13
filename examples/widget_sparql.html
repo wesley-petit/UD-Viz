@@ -90,12 +90,7 @@
             configs['sparql_widget']
           );
           sparqlWidget.domElement.classList.add('widget_sparql');
-
-          // Add UI
-          const uiDomElement = document.createElement('div');
-          uiDomElement.classList.add('full_screen');
-          document.body.appendChild(uiDomElement);
-          uiDomElement.appendChild(sparqlWidget.domElement);
+          document.body.appendChild(sparqlWidget.domElement);
 
           // Add listeners for D3Canvas node events. Three events are currently recognized 'click', 'mouseover', and 'mouseout'
 
