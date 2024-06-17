@@ -88,7 +88,9 @@ export class D3GraphCanvas extends THREE.EventDispatcher {
       .selectAll('line')
       .data(links)
       .join('line')
-      .attr('stroke-width', (d) => Math.sqrt(d.value));
+      .attr('stroke-width', (d) =>
+        Number.isNaN(d.value) ? 1 : Math.sqrt(d.value)
+      );
 
     this.node = this.svg
       .append('g')
@@ -143,7 +145,7 @@ export class D3GraphCanvas extends THREE.EventDispatcher {
       .style('font-family', 'Arial')
       .style('font-size', this.fontSize)
       .style('text-shadow', '1px 1px black')
-      .style('fill', 'grey')
+      .style('fill', 'lightgrey')
       .style('opacity', '0.5')
       // .style('fill', 'white')
       // .style('visibility', 'hidden')
@@ -162,7 +164,7 @@ export class D3GraphCanvas extends THREE.EventDispatcher {
       .style('font-family', 'Arial')
       .style('font-size', this.fontSize)
       .style('text-shadow', '1px 1px black')
-      .style('fill', 'grey')
+      .style('fill', 'lightgrey')
       .style('opacity', '0.5')
       // .style('fill', 'white')
       // .style('visibility', 'hidden')
