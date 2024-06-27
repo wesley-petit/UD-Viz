@@ -119,7 +119,7 @@ export class SparqlQueryWindow {
       this.updateResultDropdown(this.querySelect.value);
     };
 
-    this.form.onsubmit = () => {
+    this.form.onsubmit = () => { // fonction exécutée quand le form est submitted
       console.log('submit');
       console.debug(this.queryTextArea.value);
       this.sparqlProvider
@@ -147,7 +147,7 @@ export class SparqlQueryWindow {
     this.clearDataView();
     switch (view_type) {
       case 'graph':
-        this.d3Graph.update(response);
+        this.d3Graph.init(response); // a remplacé update
         this.dataView.append(this.d3Graph.canvas);
         break;
       case 'json':
@@ -258,7 +258,7 @@ export class SparqlQueryWindow {
     this.queryTextArea.setAttribute('style', 'display:none');
     this.form.appendChild(this.queryTextArea);
     const submitButton = document.createElement('input');
-    submitButton.setAttribute('type', 'submit');
+    submitButton.setAttribute('type', 'submit'); // quand le bouton est pressé alors la fonction associée à l'argument onsubmit de this.form est exécutée
     submitButton.setAttribute('value', 'Send');
     this.form.appendChild(submitButton);
     const formatLabel = document.createElement('label');

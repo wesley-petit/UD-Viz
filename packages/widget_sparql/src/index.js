@@ -1,3 +1,5 @@
+import { Graph } from './model/Graph';
+
 // View
 export { D3GraphCanvas } from './view/D3GraphCanvas';
 export { JsonRenderer } from './view/JsonRenderer';

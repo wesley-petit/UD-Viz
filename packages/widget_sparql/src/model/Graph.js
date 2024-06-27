@@ -12,6 +12,8 @@ export class Graph {
       // { source: 'x', target: 'y', label: 1 }
     ];
     this.typeList = [];
+    this._nodes = [];
+    this._links = [];
   }
 
   /**
