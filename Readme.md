@@ -32,7 +32,6 @@ _3D tiles related_
   <a href="https://projet.liris.cnrs.fr/vcity/permalink/demo-point-cloud.html" ><img src="./img/PointClouds.png" alt="Point Clouds Mosaic" width="32.5%"></a>
 </p>
 
-
 ### Directory Hierarchy
 
 ```
@@ -58,8 +57,8 @@ UD-Viz (repo)
 
 | Repository      | Link                                         | Description                                                                            |
 | --------------- | -------------------------------------------- | -------------------------------------------------------------------------------------- |
-| UD-Viz-docker   | https://github.com/VCityTeam/UD-Viz-docker   | Docker, which performs all the steps described in [Getting Started](#getting-started). |
-| UD-Viz-template | https://github.com/VCityTeam/UD-Viz-template | A basis for creating your application using UD-Viz.                                    |
+| UD-Viz-docker   | <https://github.com/VCityTeam/UD-Viz-docker>   | Docker, which performs all the steps described in [Getting Started](#getting-started). |
+| UD-Viz-template | <https://github.com/VCityTeam/UD-Viz-template> | A basis for creating your application using UD-Viz.                                    |
 
 ## Getting Started
 
